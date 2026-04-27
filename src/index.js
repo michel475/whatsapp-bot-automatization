@@ -1,64 +1,50 @@
-const { Client } = require('whatsapp-web.js');
+const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
+const axios = require('axios');
 
-const client = new Client();
-
+const client = new Client({
+    authStrategy: new LocalAuth(),
+    // Sugestão: adicione um delay entre as ações para parecer mais humano
+    puppeteer: {
+        headless: true,
+        args: ['--no-sandbox']
+    }
+});
 
 client.on('qr', (qr) => {
     qrcode.generate(qr, { small: true });
 });
 
 client.on('ready', () => {
-    console.log('Client is ready!');
+    console.log('Bot online e protegido!');
 });
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-async function start(){
+client.on('message_create', async (msg) => {
+    const selfId = client.info.wid._serialized;
+    if (msg.fromMe && msg.body === 'Michel Aguiar 20 anos') {
+        return;
+    }
 
-
-    client.on('message', (msg) => {
-        if (msg.body == 'oii meu amor') {
-            sleep(Math.floor(Math.random() * 5000 - 1000 + 1)) + 1000;
-            msg.reply(`Oii ${msg.author} meu amor `);
-            if(msg.author == "amanda")
-            {
-              msg.reply('Te amo meu amor.');
-            }
+    if (msg.body === 'Tarefas' && msg.fromMe) {
+        try{
+            const response = await axios.get("http://localhost:3000/task/tarefas");
+            const b = response.data;
+            console.log(response.data);
+            const a = response.data[0].descricao
+            setTimeout(async () => {
+            await client.sendMessage(selfId, a);
+        }, 1000);
+        }catch(error) {
+            console.log(error);
         }
-        else{
-          if(msg.body == 'Olar')
-          {
-            sleep(Math.floor(Math.random() * 5000 - 1000 + 1)) + 1000;
-            msg.reply(`Olar, como vai?`)
-          }
-          else{
-            if(msg.body == 'Tudo bem e com voce?'){
-              sleep(Math.floor(Math.random() * 5000 - 1000 + 1)) + 1000;
-              msg.reply(`Vou bem também`)
-            }
-            else{
-              if(msg.body == 'Info')
-              {
-                sleep(Math.floor(Math.random() * 5000 - 1000 + 1)) + 1000;
-                msg.reply(`Nome: ${msg.author} Dispositivo: ${msg.deviceType}`)
-              }
-              else{
-                  if(msg.body == 'Oi filho')
-                  {
-                    sleep(Math.floor(Math.random() * 5000 - 1000 + 1)) + 1000;
-                    if(msg.author == 'mãe')
-                      msg.reply(`Benção mamae`);
-                    else{
-                      if(msg.author == 'pai')
-                        msg.reply("Benção papai");
-                    }
-                  }
-                }
-              }
-            }
-          }
-    });
+        
+        
+    }
+
+    // Log apenas para mensagens que NÃO são do sistema/bot
+    if (msg.to === selfId && !msg.fromMe) {
+       console.log('Mensagem de terceiros recebida:', msg.body);
+    }
+});
 
 client.initialize();
-}
-start();
