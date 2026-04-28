@@ -25,20 +25,49 @@ client.on('message_create', async (msg) => {
         return;
     }
 
-    if (msg.body === 'Tarefas' && msg.fromMe) {
+    if (msg.body === 'Tarefas' && msg.fromMe)
+    {
         try{
-            const response = await axios.get("http://localhost:3000/task/tarefas");
-            const b = response.data;
-            console.log(response.data);
-            const a = response.data[0].descricao
+            const response = await axios.get("http://localhost:3000/tasks");
+            const tarefas = response.data
+            console.log(tarefas);
+            const resposta_elaborada = JSON.stringify(tarefas);
             setTimeout(async () => {
-            await client.sendMessage(selfId, a);
+            await client.sendMessage(selfId, resposta_elaborada);
         }, 1000);
         }catch(error) {
             console.log(error);
         }
         
         
+    }
+
+    if(msg.body === 'BuscarInativas' && msg.FromMe)
+    {
+        try{
+            const response = await axios.get(`http://localhost:3000/tasks/BuscarInativas`);
+            const tarefa = response.data;
+            const resposta_elaborada = JSON.stringify(tarefa);
+            setTimeout(async() => {
+                await client.sendMessage(selfId, resposta_elaborada);
+            }, 2500);
+        } catch(error) {
+            console.log(error);
+        }
+    }
+
+    if(msg.body === 'BuscarAtivas' && msg.FromMe)
+    {
+        try{
+            const response = await axios.get(`http://localhost:3000/tasks/BuscarAtivas`);
+            const tarefa = response.data;
+            const resposta_elaborada = JSON.stringify(tarefa);
+            setTimeout(async() => {
+                await client.sendMessage(selfId, resposta_elaborada);
+            }, 2500);
+        } catch(error) {
+            console.log(error);
+        }
     }
 
     // Log apenas para mensagens que NÃO são do sistema/bot
