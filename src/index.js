@@ -25,48 +25,52 @@ client.on('message_create', async (msg) => {
         return;
     }
 
-    if (msg.body === 'Tarefas' && msg.fromMe)
+    if (msg.body === 'Tarefas')
     {
         try{
             const response = await axios.get("http://localhost:3000/tasks");
             const tarefas = response.data
             console.log(tarefas);
             const resposta_elaborada = JSON.stringify(tarefas);
+            
             setTimeout(async () => {
-            await client.sendMessage(selfId, resposta_elaborada);
+            await client.sendMessage(selfId, resposta_elaborada.join(","));
         }, 1000);
         }catch(error) {
             console.log(error);
         }
         
         
-    }
-
-    if(msg.body === 'BuscarInativas' && msg.FromMe)
-    {
-        try{
-            const response = await axios.get(`http://localhost:3000/tasks/BuscarInativas`);
-            const tarefa = response.data;
-            const resposta_elaborada = JSON.stringify(tarefa);
-            setTimeout(async() => {
-                await client.sendMessage(selfId, resposta_elaborada);
-            }, 2500);
-        } catch(error) {
-            console.log(error);
+    }else{
+        if(msg.body === 'Inativas')
+        {
+            try{
+                console.log("passou aqui")
+                const response = await axios.get(`http://localhost:3000/tasks/t/inativas`);
+                const tarefa = response.data;
+                console.log(tarefa);
+                const resposta_elaborada = JSON.stringify(tarefa);
+                setTimeout(async() => {
+                    await client.sendMessage(selfId, resposta_elaborada);
+                }, 2500);
+            } catch(error) {
+                console.log(error);
+            }
         }
-    }
-
-    if(msg.body === 'BuscarAtivas' && msg.FromMe)
-    {
-        try{
-            const response = await axios.get(`http://localhost:3000/tasks/BuscarAtivas`);
-            const tarefa = response.data;
-            const resposta_elaborada = JSON.stringify(tarefa);
-            setTimeout(async() => {
-                await client.sendMessage(selfId, resposta_elaborada);
-            }, 2500);
-        } catch(error) {
-            console.log(error);
+        else{
+            if(msg.body === 'BuscarAtivas')
+            {
+                try{
+                    const response = await axios.get(`http://localhost:3000/tasks/BuscarAtivas`);
+                    const tarefa = response.data;
+                    const resposta_elaborada = JSON.stringify(tarefa);
+                    setTimeout(async() => {
+                        await client.sendMessage(selfId, resposta_elaborada);
+                    }, 2500);
+                } catch(error) {
+                    console.log(error);
+                }
+            }
         }
     }
 
